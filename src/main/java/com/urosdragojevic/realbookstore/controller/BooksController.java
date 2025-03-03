@@ -32,6 +32,7 @@ public class BooksController {
     private PersonRepository personRepository;
 
     @GetMapping({"/", "/books"})
+    @PreAuthorize("hasAuthority('VIEW_BOOKS_LIST')")
     public String home(Model model) {
         model.addAttribute("books", bookRepository.getAll());
         return "books";
