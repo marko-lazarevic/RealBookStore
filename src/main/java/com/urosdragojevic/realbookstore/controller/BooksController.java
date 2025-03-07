@@ -43,6 +43,11 @@ public class BooksController {
 
         Book book = bookRepository.get(id);
 
+        if(book == null){
+            model.addAttribute("errorMessage", "Book with ID " + id + " not found.");
+            return "error";
+        }
+
         List<Genre> genres = genreRepository.getAllForBook(id);
         book.setGenres(genres);
 
