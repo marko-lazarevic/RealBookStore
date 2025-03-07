@@ -51,14 +51,16 @@ public class UserRepository {
         return false;
     }
 
-    public void delete(int userId) {
+    public boolean delete(int userId) {
         String query = "DELETE FROM users WHERE id = " + userId;
         try (Connection connection = dataSource.getConnection();
              Statement statement = connection.createStatement();
         ) {
             statement.executeUpdate(query);
+            return true;
         } catch (SQLException e) {
             LOG.error("Deleting user by ID failed. ", e);
+            return false;
         }
     }
 }

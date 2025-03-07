@@ -25,7 +25,7 @@ import java.util.List;
 public class PersonsController {
 
     private static final Logger LOG = LoggerFactory.getLogger(PersonsController.class);
-    private static final AuditLogger auditLogger = AuditLogger.getAuditLogger(PersonRepository.class);
+    private static final AuditLogger auditLogger = AuditLogger.getAuditLogger(PersonsController.class);
 
     private final PersonRepository personRepository;
     private final UserRepository userRepository;
@@ -59,7 +59,13 @@ public class PersonsController {
     @DeleteMapping("/persons/{id}")
     public ResponseEntity<Void> person(@PathVariable int id) {
         personRepository.delete(id);
-        userRepository.delete(id);
+        boolean success = userRepository.delete(id);
+
+        if(success){
+            auditLogger.audit("Deleted user with ID '" + id +"'");
+        }else{
+            auditLogger.audit("Deleting user with ID '" + id +"' failed!");
+        }
 
         return ResponseEntity.noContent().build();
     }
@@ -71,6 +77,7 @@ public class PersonsController {
         String csrf = session.getAttribute("CSRF_TOKEN").toString();
 
         if (!csrf.equals(csrfToken)) {
+            auditLogger.audit("Invalid csrf detected!");
             throw new AccessDeniedException("Forbidden");
         }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -90,10 +97,13 @@ public class PersonsController {
         }
 
         if (!hasUpdateAuthority && !isUpdatingSelf) {
+            auditLogger.audit("Unauthorized person update request!");
             throw new AccessDeniedException("You are not authorized to update this person");
         }
 
         personRepository.update(person);
+
+        auditLogger.audit("Updated person "+person.toString());
 
         String referer = request.getHeader("Referer");
         if (referer != null && referer.contains("/myprofile")) {

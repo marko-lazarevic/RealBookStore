@@ -96,12 +96,12 @@ public class BookRepository {
                         statement2.setInt(2, genre.getId());
                         statement2.executeUpdate();
                     } catch (SQLException e) {
-                        e.printStackTrace();
+                        LOG.error("Creating book failed.", e);
                     }
                 });
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Creating book failed.", e);;
         }
         return id;
     }
@@ -119,7 +119,7 @@ public class BookRepository {
             statement.executeUpdate(query3);
             statement.executeUpdate(query4);
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOG.error("Deleting book by ID failed.", e);
         }
     }
 
